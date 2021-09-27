@@ -11,4 +11,4 @@ Edit line 5 to put your owner password (must be the same for all your pdf files)
 
 ## Warning :
 1) This script won't search into subdirectories
-2) This script will overwrite pdf files : please make sure you had copy of encrypted pdf ! (you can edit line 13 with something like `pdf.save(".\\" + "uncrypted_" +files)` if you don't want to overwrite existing files)
+2) This script will overwrite pdf files : please make sure you had copy of encrypted pdf ! (you can edit line 13 with something like `pdf.save(".\\" + "uncrypted_" + files)` if you don't want to overwrite existing files)
