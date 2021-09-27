@@ -7,7 +7,8 @@ Simply put the .py script in the same directory than pdf files you want to remov
 I'm using pikepdf instead of PyPDF2 because it's support Adobe 6+ encryption
 
 ## Config
-Edit line 5 to put your owner password (must be the same for all your pdf files)
+1) Install pikepdf `pip install pikepdf`
+2) Edit line 6 to put your owner password (must be the same for all your pdf files)
 
 ## Warning
 1) This script won't search into subdirectories
