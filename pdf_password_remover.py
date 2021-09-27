@@ -2,7 +2,7 @@ import pikepdf
 import fnmatch
 import os
 
-#Edit "0" with you own password, must be the same for all PDF files
+#Edit "0" with your own password, must be the same for all PDF files
 pdf_password = "0"
 
 #Filter PDF files only
