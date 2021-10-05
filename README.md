@@ -1,4 +1,4 @@
-# simple-multiple-pdf-password-remover
+# Multiple pdf password remover
 
 ## Description
 A really simple script to remove (not crack !) password from multiple pdf files.
