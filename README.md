@@ -26,7 +26,7 @@ C:.
 └───folder
         pdf_crypted_2.pdf
         pdf_uncrypted_2.pdf
-        ```
+```
 
 Log file :
 ```
