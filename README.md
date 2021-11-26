@@ -37,3 +37,4 @@ Log file :
 [2021-11-26 22:24:15,926] [INFO] pdf_uncrypted_2.pdf isn't lock with a password`
 
 ## Screenshots
+![alt text](https://github.com/thomasdelorge/multiple-pdf-password-remover/blob/main/screenshot.png?raw=true "python console screenshot")
