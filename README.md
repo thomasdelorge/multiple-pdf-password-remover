@@ -7,6 +7,8 @@ Simply put the .py script in the same directory than pdf files you want to remov
 
 I'm using pikepdf instead of PyPDF2 because it's support Adobe 6+ encryption
 
+Tested with +5000 PDF to uncrypt and it's work fine ! :)
+
 ## Config
 1) Install pikepdf `pip install pikepdf`
 2) Install coloredlogs `pip install coloredlogs` (if you don't want to add this dependency, just #comment lines 4, 21, 22, 23 into the script)
