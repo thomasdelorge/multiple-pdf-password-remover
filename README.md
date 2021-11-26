@@ -13,7 +13,7 @@ I'm using pikepdf instead of PyPDF2 because it's support Adobe 6+ encryption
 3) Edit line 7 to put your owner password (must be the same for all your pdf files)
 
 ## Warning
-This script will overwrite pdf files : please make sure you had copy of encrypted pdf ! (you can edit line 13 with something like `pdf.save(".\\" + "uncrypted_" + files)` if you don't want to overwrite existing files)
+This script will overwrite pdf files : please make sure you had copy of encrypted pdf ! (you can edit line 41 with something like `pdf.save(".\\" + "uncrypted_" + files)` if you don't want to overwrite existing files)
 
 ## Exemple
 Tree :
