@@ -13,4 +13,4 @@ This script was created and tested only in Win11 : GUI use Windows.Forms !
 This script will search PDF into all subdirectories !
 
 ## Screenshots
-![alt text](https://github.com/thomasdelorge/multiple-pdf-password-remover/blob/main/screenshot.png?raw=true "python console screenshot")
+![alt text](https://github.com/thomasdelorge/multiple-pdf-password-remover/blob/main/powershell/screenshot.jpg?raw=true "powershell gui")
