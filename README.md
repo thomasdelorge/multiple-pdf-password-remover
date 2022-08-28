@@ -7,7 +7,9 @@ Available in two versions :
 
 ## Powershell (NEW !)
 (+) Support multiple passwords possibilities
+
 (+) Two level of logs : debug & succeeded only
+
 (+) Auto-detect & Download qPDF from Github repo
 
 (-) Probably windows only cause of using Windows Forms
@@ -16,5 +18,7 @@ Available in two versions :
 (+) Python : welcome linux's friends
 
 (-) Console only
+
 (-) Need edit script before launch (set password)
+
 (-) Some dependencies
