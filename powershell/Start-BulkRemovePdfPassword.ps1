@@ -5,69 +5,6 @@ Add-Type -Assembly System.Drawing
 ###########################
 ######## FUNCTION #########
 ###########################
-
-$StartProcessing = {
-    Write-Log "PDF Password Remover : Started"
-
-    # Try to found qPDF exe (if not > download from github repo)
-    if ((Get-QpdfExeFilePath).Count -eq 0) { Get-QpdfLastRelease }
-    $qpdfExe = Get-QpdfExeFilePath
-    Write-Log "qPDF exe detection : $qpdfExe" -Level "DEBUG"
-
-    if ($CheckBox1.Checked) { Write-Log "User choice : overwrite existing file with unprotected one" }
-    else { Write-Log "User choice : create new pdf file if unprotected" }
-
-    $Button1.Enabled = 0
-    $Button1.Text = "Processing"
-    $Button2.Enabled = 0
-    $Form.ClientSize = (New-Object -TypeName System.Drawing.Size(400, 290))
-
-    try {
-        $passwords = $TextBox2.Text -split ","
-        $pdfFiles = Get-ChildItem -Path "$($TextBox1.Text)" -File -Recurse -Filter "*.pdf" -Exclude "*.decrypted.pdf"
-        Write-Log "$($pdfFiles.Count) pdf's files discover in $($TextBox1.Text)"
-        $ProgressBar1.Value = 0
-        $ProgressBar1.Maximum = $pdfFiles.Count
-
-        $pdfFiles | % {
-            $pdfFile = $_.FullName
-            $Label3.Text = "Processing $pdfFile"
-            
-            # Check if pdf is protected
-            if ((Start-Process powershell.exe -ArgumentList "$qpdfExe --requires-password $pdfFile" -NoNewWindow -PassThru -Wait).ExitCode -eq 0) {
-                # Try every password
-                $pwdFound = 0
-                foreach ($pwd in $passwords) {
-                    if ($pwdFound -eq 1) { continue }
-                    
-                    if ((Start-Process powershell.exe -ArgumentList "$qpdfExe --verbose --requires-password --password=$pwd $pdfFile" -NoNewWindow -PassThru -Wait).ExitCode -eq 1) {
-                        $pwdFound = 1
-
-                        # Remove password from pdf file
-                        if ($CheckBox1.Checked) { $cmd = Start-Process powershell.exe -ArgumentList "$qpdfExe --verbose --decrypt --password=$pwd --replace-input $pdfFile" -NoNewWindow -PassThru -Wait }
-                        else {
-                            $cmd = Start-Process powershell.exe -ArgumentList "$qpdfExe --verbose --decrypt --password=$pwd $pdfFile `"$($pdfFile).decrypted.pdf`"" -NoNewWindow -PassThru -Wait                                                                               
-                        }
-
-                        # Check Exit Status
-                        if ($cmd.ExitCode -eq 0) { Write-Log "$pdfFile : file unprotected" -Level "SUCCESS" }
-                        elseif ($cmd.ExitCode -eq 2) { Write-Log "$pdfFile : errors occurred" -Level "ERROR" }
-                        elseif ($cmd.ExitCode -eq 3) { Write-Log "$pdfFile : warning were flagged by qPDF" -Level "WARNING" }
-                    } 
-                    elseif (($pwd -eq $passwords[-1]) -and ($pwdFound -eq 0)) { Write-Log "$pdfFile : all passwords failed" -Level "ERROR" }
-                }   
-            }
-            else { Write-Log "$pdfFile : isn't password protected" -Level "DEBUG" }
-            $ProgressBar1.PerformStep()
-        }
-    }
-    catch { [void][System.Windows.Forms.MessageBox]::Show("$($_.Exception.ErrorRecord.Exception.Message)", "Erreur") }
-
-    $Button1.Text = "End"
-    $Button2.Enabled = 1
-    Write-Log "PDF Password Remover : Ended"
-}
-
 function Write-Log {
     param(
         [Parameter(Mandatory = $true, ValueFromPipeline)]
@@ -112,6 +49,72 @@ function Get-QpdfExeFilePath {
     try { (Get-ChildItem -Path $PSScriptRoot -File -Recurse -Filter "qpdf.exe")[0].FullName }
     catch { $r = $null }
     return $r
+}
+
+$StartProcessing = {
+    Write-Log "PDF Password Remover : Started"
+
+    # Try to found qPDF exe (if not > download from github repo)
+    if ((Get-QpdfExeFilePath).Count -eq 0) { Get-QpdfLastRelease }
+    $qpdfExe = Get-QpdfExeFilePath
+    Write-Log "qPDF exe detection : $qpdfExe" -Level "DEBUG"
+
+    if ($CheckBox1.Checked) { Write-Log "User choice : overwrite existing file with unprotected one" }
+    else { Write-Log "User choice : create new pdf file if unprotected" }
+
+    $Button1.Enabled = 0
+    $Button1.Text = "Searching"
+    $Button2.Enabled = 0
+    $Form.ClientSize = (New-Object -TypeName System.Drawing.Size(400, 290))
+
+    try {
+        $passwords = $TextBox2.Text -split ","
+        try { $pdfFiles = Get-ChildItem -Path "$($TextBox1.Text)" -File -Recurse -Filter "*.pdf" -Exclude "*.decrypted.pdf" -ErrorAction SilentlyContinue}
+        Catch { [void][System.Windows.Forms.MessageBox]::Show("$($_.Exception.ErrorRecord.Exception.Message)", "Erreur") }
+        $Button1.Text = "Processing"
+        Write-Log "$($pdfFiles.Count) pdf's files discover in $($TextBox1.Text)"
+        $ProgressBar1.Value = 0
+        $ProgressBar1.Maximum = $pdfFiles.Count
+
+        $pdfFiles | % {
+            $pdfFile = $_.FullName
+            $Label3.Text = "Processing $pdfFile"
+            
+            # Check if pdf is protected
+            # Write-Log "$qpdfExe --requires-password `"$pdfFile`"" -Level "DEBUG"
+            if ((Start-Process "$qpdfExe" -ArgumentList "--requires-password `"$pdfFile`"" -NoNewWindow -PassThru -Wait).ExitCode -eq 0) {
+                # Try every password
+                $pwdFound = 0
+                foreach ($pwd in $passwords) {
+                    if ($pwdFound -eq 1) { continue }
+                    
+                    # & "$qpdfExe" "C:\Users\Thomas\Downloads\test\fichier crypted.pdf" --decrypt --verbose --password=0 "C:\Users\Thomas\Downloads\test\fichier uncrypted.pdf"
+                    if ((Start-Process "$qpdfExe" -ArgumentList "--verbose --requires-password --password=$pwd `"$pdfFile`"" -NoNewWindow -PassThru -Wait).ExitCode -eq 3) {
+                        $pwdFound = 1
+
+                        # Remove password from pdf file
+                        if ($CheckBox1.Checked) { $cmd = Start-Process "$qpdfExe" -ArgumentList "--verbose --decrypt --password=$pwd --replace-input `"$pdfFile`"" -NoNewWindow -PassThru -Wait }
+                        else {
+                            $cmd = Start-Process "$qpdfExe" -ArgumentList "--verbose --decrypt --password=$pwd `"$pdfFile`" `"$($pdfFile).decrypted.pdf`"" -NoNewWindow -PassThru -Wait                                                                               
+                        }
+
+                        # Check Exit Status
+                        if ($cmd.ExitCode -eq 0) { Write-Log "$pdfFile : file unprotected" -Level "SUCCESS" }
+                        elseif ($cmd.ExitCode -eq 2) { Write-Log "$pdfFile : errors occurred" -Level "ERROR" }
+                        elseif ($cmd.ExitCode -eq 3) { Write-Log "$pdfFile : warning were flagged by qPDF" -Level "WARNING" }
+                    } 
+                    elseif (($pwd -eq $passwords[-1]) -and ($pwdFound -eq 0)) { Write-Log "$pdfFile : all passwords failed" -Level "ERROR" }
+                }   
+            }
+            else { Write-Log "$pdfFile : isn't password protected" -Level "DEBUG" }
+            $ProgressBar1.PerformStep()
+        }
+    }
+    catch { [void][System.Windows.Forms.MessageBox]::Show("$($_.Exception.ErrorRecord.Exception.Message)", "Erreur") }
+
+    $Button1.Text = "End"
+    $Button2.Enabled = 1
+    Write-Log "PDF Password Remover : Ended"
 }
 
 $UnlockStartButton = {
@@ -196,5 +199,5 @@ $Form.Text = 'Unprotect multiple PDF files'
 $Form.StartPosition = 'CenterScreen'
 $Form.FormBorderStyle = 'Fixed3D'
 $Form.MaximizeBox = $false
-$Form.TopMost = $true
+#$Form.TopMost = $true
 $Form.ShowDialog()
