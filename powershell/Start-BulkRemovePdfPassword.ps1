@@ -46,9 +46,25 @@ function Get-QpdfLastRelease {
 }
 
 function Get-QpdfExeFilePath {
-    try { (Get-ChildItem -Path $PSScriptRoot -File -Recurse -Filter "qpdf.exe")[0].FullName }
-    catch { $r = $null }
-    return $r
+
+    # Cas 1 : Check if qpdf already installed
+    $qpdfPath = Get-Command -Name qpdf.exe -ErrorAction SilentlyContinue
+    if ($qpdfPath) {
+        return $qpdfPath.Source
+    }
+
+    # Case 2 : search local qpdf.exe
+    try {
+        $localQpdf = Get-ChildItem -Path $PSScriptRoot -File -Recurse -Filter "qpdf.exe" -ErrorAction Stop
+        if ($localQpdf) {
+            return $localQpdf[0].FullName
+        }
+    }
+    catch {
+        Write-Verbose "Erreur lors de la recherche locale de qpdf.exe : $($_.Exception.Message)"
+    }
+
+    return $null
 }
 
 $StartProcessing = {
